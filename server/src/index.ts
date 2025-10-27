@@ -1,24 +1,13 @@
 import "reflect-metadata";
 import { MikroORM } from "@mikro-orm/core";
-import { PostgreSqlDriver } from "@mikro-orm/postgresql";
 import { Post } from "./entities/Post";
-import { __prod__ } from "./constants";
 
 const main = async () => {
-  const orm = await MikroORM.init({
-    driver: PostgreSqlDriver,
-    dbName: "lireddit",
-    user: "postgres",
-    password: " ",
-    host: "localhost",
-    port: 5432,
-    debug: !__prod__,
-    entities: [Post],
-  });
+  const orm = await MikroORM.init(); // ✅ loads mikro-orm.config.ts automatically
 
   console.log("✅ Database connected successfully!");
 
-  // ✅ Fork a new context-specific EntityManager
+  // ✅ Always fork to create context-specific EM
   const em = orm.em.fork();
 
   const post = em.create(Post, { title: "My first post" });
