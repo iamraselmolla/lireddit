@@ -1,15 +1,15 @@
 import "reflect-metadata";
 import { MikroORM } from "@mikro-orm/core";
 import { PostgreSqlDriver } from "@mikro-orm/postgresql";
-import { __prod__ } from "./constants";
 import { Post } from "./entities/Post";
+import { __prod__ } from "./constants";
 
 const main = async () => {
   const orm = await MikroORM.init({
     driver: PostgreSqlDriver,
     dbName: "lireddit",
     user: "postgres",
-    password: " ", // use actual password
+    password: " ",
     host: "localhost",
     port: 5432,
     debug: !__prod__,
@@ -18,16 +18,16 @@ const main = async () => {
 
   console.log("✅ Database connected successfully!");
 
-  const createPost = orm.em.create(Post, { title: "my first post" });
-  await orm.em.persistAndFlush(createPost);
-  console.log("✅ Post created successfully:", createPost);
+  // ✅ Fork a new context-specific EntityManager
+  const em = orm.em.fork();
 
-  const posts = await orm.em.find(Post, {});
+  const post = em.create(Post, { title: "My first post" });
+  await em.persistAndFlush(post);
+
+  console.log("✅ Post created successfully:", post);
+
+  const posts = await em.find(Post, {});
   console.log("📜 All posts in DB:", posts);
 };
 
-main().catch((err) => {
-  console.error("❌ Error:", err);
-});
-
-console.log("Server is running on http://localhost:4000");
+main().catch((err) => console.error("❌ Error:", err));
